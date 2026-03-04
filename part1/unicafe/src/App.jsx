@@ -9,10 +9,20 @@ const FeedbackForm = (props) => {
     <div>
       <h1>give feedback</h1>
       <div>
-        <button onClick={props.onClick[0]}>good</button>
-        <button onClick={props.onClick[1]}>neutral</button>
-        <button onClick={props.onClick[2]}>bad</button>
+        <Button onClick={props.onClick[0]} text={"good"} />
+        <Button onClick={props.onClick[1]} text={"neutral"} />
+        <Button onClick={props.onClick[2]} text={"bad"} />
       </div>
+    </div>
+  );
+};
+
+const StatisticsLine = (props) => {
+  return (
+    <div>
+      <p>
+        {props.text} {props.value} {props.optionalText}
+      </p>
     </div>
   );
 };
@@ -23,12 +33,16 @@ const Statistics = (props) => {
       <div>
         <h1>statistics</h1>
         <div>
-          <p>good {props.good}</p>
-          <p>neutral {props.neutral}</p>
-          <p>bad {props.bad}</p>
-          <p>total {props.total}</p>
-          <p>average {props.average}</p>
-          <p>positive {props.positive} %</p>
+          <StatisticsLine text={"good"} value={props.good} />
+          <StatisticsLine text={"neutral"} value={props.neutral} />
+          <StatisticsLine text={"bad"} value={props.bad} />
+          <StatisticsLine text={"total"} value={props.total} />
+          <StatisticsLine text={"average"} value={props.average} />
+          <StatisticsLine
+            text={"positive"}
+            value={props.positive}
+            optionalText={"%"}
+          />
         </div>
       </div>
     );
