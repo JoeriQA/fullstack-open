@@ -19,11 +19,12 @@ const FeedbackForm = (props) => {
 
 const StatisticsLine = (props) => {
   return (
-    <div>
-      <p>
-        {props.text} {props.value} {props.optionalText}
-      </p>
-    </div>
+    <tr>
+      <td>{props.text}</td>
+      <td>
+        {props.value} {props.optionalText}
+      </td>
+    </tr>
   );
 };
 
@@ -32,18 +33,20 @@ const Statistics = (props) => {
     return (
       <div>
         <h1>statistics</h1>
-        <div>
-          <StatisticsLine text={"good"} value={props.good} />
-          <StatisticsLine text={"neutral"} value={props.neutral} />
-          <StatisticsLine text={"bad"} value={props.bad} />
-          <StatisticsLine text={"total"} value={props.total} />
-          <StatisticsLine text={"average"} value={props.average} />
-          <StatisticsLine
-            text={"positive"}
-            value={props.positive}
-            optionalText={"%"}
-          />
-        </div>
+        <table>
+          <tbody>
+            <StatisticsLine text={"good"} value={props.good} />
+            <StatisticsLine text={"neutral"} value={props.neutral} />
+            <StatisticsLine text={"bad"} value={props.bad} />
+            <StatisticsLine text={"total"} value={props.total} />
+            <StatisticsLine text={"average"} value={props.average} />
+            <StatisticsLine
+              text={"positive"}
+              value={props.positive}
+              optionalText={"%"}
+            />
+          </tbody>
+        </table>
       </div>
     );
   else
