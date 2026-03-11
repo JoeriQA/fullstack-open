@@ -27,13 +27,7 @@ const App = () => {
     6: 0,
     7: 0,
   });
-
-  const getMax = () => {
-    for (let index = 0; index < array.length; index++) {
-      const element = array[index];
-    }
-    Object.entries(votes);
-  };
+  const [max, setMax] = useState({ anecdote: "", value: 0 });
 
   const handleNextAnecdoteClick = () => {
     setSelected(getRandomInt(anecdotes.length));
@@ -42,20 +36,23 @@ const App = () => {
   const handleVoteClick = () => {
     const copy = { ...votes };
     copy[selected] += 1;
-    console.log(copy);
     setVotes(copy);
+    Object.entries(copy).forEach(([key, value]) => {
+      if (max.value < value) setMax({ anecdote: anecdotes[key], value: value });
+    });
   };
 
   return (
     <div>
       <h1>Anecdote of the day</h1>
-      <div>{anecdotes[selected]}</div>
-      <div>has {votes[selected]} votes</div>
+      <p>{anecdotes[selected]}</p>
+      <p>has {votes[selected]} votes</p>
       <button onClick={handleVoteClick}>vote</button>
       <button onClick={handleNextAnecdoteClick}>next anecdote</button>
 
       <h1>Anecdote with most votes</h1>
-      <p>has {getMax} votes</p>
+      <div>{max.anecdote}</div>
+      <p>has {max.value} votes</p>
     </div>
   );
 };
