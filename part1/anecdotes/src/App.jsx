@@ -28,6 +28,13 @@ const App = () => {
     7: 0,
   });
 
+  const getMax = () => {
+    for (let index = 0; index < array.length; index++) {
+      const element = array[index];
+    }
+    Object.entries(votes);
+  };
+
   const handleNextAnecdoteClick = () => {
     setSelected(getRandomInt(anecdotes.length));
   };
@@ -48,6 +55,7 @@ const App = () => {
       <button onClick={handleNextAnecdoteClick}>next anecdote</button>
 
       <h1>Anecdote with most votes</h1>
+      <p>has {getMax} votes</p>
     </div>
   );
 };
