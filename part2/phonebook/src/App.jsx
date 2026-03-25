@@ -24,11 +24,16 @@ const App = () => {
     }
   };
 
+  function filterNumbers(event) {
+    setFilter(event.target.value);
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
       <div>
-        filter shown with <input value={filterString} onChange={}/>
+        filter shown with{" "}
+        <input value={filterString} onChange={filterNumbers} />
       </div>
       <h2>add a new</h2>
       <form>
