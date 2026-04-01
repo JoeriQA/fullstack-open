@@ -8,9 +8,9 @@ const AddNumberForm = ({ persons, setPersons }) => {
   const handleAdd = (event) => {
     event.preventDefault();
 
-    const id = persons.find((person) => person.name === newName).id;
+    const personFound = persons.find((person) => person.name === newName);
 
-    if (id) {
+    if (personFound) {
       if (
         confirm(
           `${newName} is already added to phone book, replace the old number with a new one?`,
@@ -18,9 +18,11 @@ const AddNumberForm = ({ persons, setPersons }) => {
       ) {
         const personObject = { name: newName, number: newNumber };
 
-        personService.update(id, personObject).then(() => {
+        personService.update(personFound.id, personObject).then(() => {
           setPersons((prevPersons) =>
-            prevPersons.map((p) => (p.id !== id ? p : personObject)),
+            prevPersons.map((p) =>
+              p.id !== personFound.id ? p : personObject,
+            ),
           );
           setNewName("");
           setNewNumber("");
@@ -33,7 +35,7 @@ const AddNumberForm = ({ persons, setPersons }) => {
       };
 
       personService.create(personObject).then((response) => {
-        setPersons(persons.concat(response.data));
+        setPersons(persons.concat(response));
         setNewName("");
         setNewNumber("");
       });

@@ -3,9 +3,16 @@ import personService from "./services/persons";
 const PersonRow = ({ person, persons, setPersons }) => {
   const handleDeleteClick = () => {
     if (confirm(`Delete ${person.name} ?`)) {
-      personService.remove(person.id).then(() => {
-        setPersons(persons.filter((p) => p.id !== person.id));
-      });
+      personService
+        .remove(person.id)
+        .then(() => {
+          setPersons(persons.filter((p) => p.id !== person.id));
+        })
+        .catch((error) => {
+          console.log(error);
+          alert(`the person ${person.name} was already deleted from server`);
+          setPersons(persons.filter((p) => p.id !== person.id));
+        });
     }
   };
 
