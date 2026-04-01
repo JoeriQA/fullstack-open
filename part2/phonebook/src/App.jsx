@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import personService from "./services/persons";
 import AddNumberForm from "./AddNumberForm";
 import NumberList from "./NumberList";
 
@@ -7,7 +7,7 @@ const App = () => {
   const [persons, setPersons] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
+    personService.getAll().then((response) => {
       setPersons(response.data);
     });
   }, []);
@@ -16,7 +16,7 @@ const App = () => {
     <div>
       <h2>Phone book</h2>
       <AddNumberForm persons={persons} setPersons={setPersons} />
-      <NumberList persons={persons} />
+      <NumberList persons={persons} setPersons={setPersons} />
     </div>
   );
 };
