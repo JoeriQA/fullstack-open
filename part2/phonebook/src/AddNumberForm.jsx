@@ -1,3 +1,4 @@
+import personService from "./services/persons";
 import { useState } from "react";
 
 const AddNumberForm = ({ persons, setPersons }) => {
@@ -7,19 +8,37 @@ const AddNumberForm = ({ persons, setPersons }) => {
   const handleAdd = (event) => {
     event.preventDefault();
 
-    if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to phone book`);
-      setNewName("");
+    const personFound = persons.find((person) => person.name === newName);
+
+    if (personFound) {
+      if (
+        confirm(
+          `${newName} is already added to phone book, replace the old number with a new one?`,
+        )
+      ) {
+        const personObject = { name: newName, number: newNumber };
+
+        personService.update(personFound.id, personObject).then(() => {
+          setPersons((prevPersons) =>
+            prevPersons.map((p) =>
+              p.id !== personFound.id ? p : personObject,
+            ),
+          );
+          setNewName("");
+          setNewNumber("");
+        });
+      }
     } else {
-      setPersons(
-        persons.concat({
-          name: newName,
-          number: newNumber,
-          id: persons.length + 1,
-        }),
-      );
-      setNewName("");
-      setNewNumber("");
+      const personObject = {
+        name: newName,
+        number: newNumber,
+      };
+
+      personService.create(personObject).then((response) => {
+        setPersons(persons.concat(response));
+        setNewName("");
+        setNewNumber("");
+      });
     }
   };
 
