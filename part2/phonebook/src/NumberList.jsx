@@ -2,7 +2,7 @@ import { useState } from "react";
 import PersonRow from "./PersonRow";
 
 const NumberList = ({ persons, setPersons, setErrorMessage }) => {
-  const [filteredList, setFilteredList] = useState([]);
+  const [filteredList, setFilteredList] = useState(null);
 
   function filterNumbers(event) {
     const filterString = String(event.target.value).toLocaleLowerCase();
@@ -20,7 +20,7 @@ const NumberList = ({ persons, setPersons, setErrorMessage }) => {
         filter shown with <input onChange={filterNumbers} />
       </div>
       <div>
-        {filteredList.length > 0
+        {filteredList
           ? filteredList.map((person) => (
               <PersonRow
                 key={person.id}
