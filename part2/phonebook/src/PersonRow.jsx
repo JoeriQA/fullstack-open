@@ -1,6 +1,6 @@
 import personService from "./services/persons";
 
-const PersonRow = ({ person, persons, setPersons }) => {
+const PersonRow = ({ person, persons, setPersons, setErrorMessage }) => {
   const handleDeleteClick = () => {
     if (confirm(`Delete ${person.name} ?`)) {
       personService
@@ -10,7 +10,9 @@ const PersonRow = ({ person, persons, setPersons }) => {
         })
         .catch((error) => {
           console.log(error);
-          alert(`the person ${person.name} was already deleted from server`);
+          setErrorMessage(
+            `the person ${person.name} was already deleted from server`,
+          );
           setPersons(persons.filter((p) => p.id !== person.id));
         });
     }

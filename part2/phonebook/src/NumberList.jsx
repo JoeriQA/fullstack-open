@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PersonRow from "./PersonRow";
 
-const NumberList = ({ persons, setPersons }) => {
+const NumberList = ({ persons, setPersons, setErrorMessage }) => {
   const [filteredList, setFilteredList] = useState([]);
 
   function filterNumbers(event) {
@@ -27,6 +27,7 @@ const NumberList = ({ persons, setPersons }) => {
                 person={person}
                 persons={persons}
                 setPersons={setFilteredList}
+                setErrorMessage={setErrorMessage}
               />
             ))
           : persons.map((person) => (
@@ -35,6 +36,7 @@ const NumberList = ({ persons, setPersons }) => {
                 person={person}
                 persons={persons}
                 setPersons={setPersons}
+                setErrorMessage={setErrorMessage}
               />
             ))}
       </div>

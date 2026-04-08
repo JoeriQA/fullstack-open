@@ -1,7 +1,13 @@
 import personService from "./services/persons";
 import { useState } from "react";
+import Notification from "./Notification";
 
-const AddNumberForm = ({ persons, setPersons }) => {
+const AddNumberForm = ({
+  persons,
+  setPersons,
+  setSuccessMessage,
+  setErrorMessage,
+}) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -18,15 +24,33 @@ const AddNumberForm = ({ persons, setPersons }) => {
       ) {
         const personObject = { name: newName, number: newNumber };
 
-        personService.update(personFound.id, personObject).then(() => {
-          setPersons((prevPersons) =>
-            prevPersons.map((p) =>
-              p.id !== personFound.id ? p : personObject,
-            ),
-          );
-          setNewName("");
-          setNewNumber("");
-        });
+        personService
+          .update(personFound.id, personObject)
+          .then(() => {
+            setSuccessMessage(`Succesfully changed number of ${newName}`);
+
+            setPersons((prevPersons) =>
+              prevPersons.map((p) =>
+                p.id !== personFound.id ? p : personObject,
+              ),
+            );
+            setNewName("");
+            setNewNumber("");
+
+            setTimeout(() => {
+              setSuccessMessage(null);
+            }, 5000);
+          })
+          .catch(() => {
+            setErrorMessage(
+              `Information of ${newName} has already been removed from the server`,
+            );
+            setNewName("");
+            setNewNumber("");
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
+          });
       }
     } else {
       const personObject = {
@@ -35,9 +59,16 @@ const AddNumberForm = ({ persons, setPersons }) => {
       };
 
       personService.create(personObject).then((response) => {
+        setSuccessMessage(`Added ${newName}`);
+
         setPersons(persons.concat(response));
+
         setNewName("");
         setNewNumber("");
+
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
       });
     }
   };
