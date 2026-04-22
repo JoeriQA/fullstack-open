@@ -1,21 +1,32 @@
 import countryService from "./services/countries";
 import CountryList from "./CountryList";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  const [countries, setCountries] = useState(null);
+  const [countries, setCountries] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
 
-  const findCountries = (event) => {
-    const countryResponse = countryService.get(event.target.value);
-    setCountries(countryResponse);
+  useEffect(() => {
+    countryService.getAll().then((response) => {
+      setCountries(response);
+    });
+  }, []);
+
+  const filterCountries = (event) => {
+    const filterString = String(event.target.value).toLocaleLowerCase();
+    setFilteredList(
+      countries.filter((country) =>
+        country.name.common.toLocaleLowerCase().includes(filterString),
+      ),
+    );
   };
 
   return (
     <>
       <div>
-        find countries <input onChange={findCountries} />
+        find countries <input onChange={filterCountries} />
       </div>
-      <CountryList countries={countries} />
+      <CountryList countries={filteredList} />
     </>
   );
 }

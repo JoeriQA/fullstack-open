@@ -8,7 +8,8 @@ const getAll = () => {
 };
 
 const get = (countryName) => {
-  const request = axios.post(`${baseUrl}/name/${countryName}`);
+  const request = axios.get(`${baseUrl}/name/${countryName}`);
+
   return request.then((response) => response.data);
 };
 
