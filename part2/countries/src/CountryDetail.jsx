@@ -1,6 +1,5 @@
 const CountryDetail = ({ country }) => {
   if (!country) return null;
-  console.log(country);
 
   const languages = Object.values(country.languages);
 
@@ -12,7 +11,7 @@ const CountryDetail = ({ country }) => {
       <h2>Languages</h2>
       <ul>
         {languages.map((language) => {
-          return <li>{language}</li>;
+          return <li key={language}>{language}</li>;
         })}
       </ul>
       <img src={country.flags.png} alt="" />
