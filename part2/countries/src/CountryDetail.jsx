@@ -1,3 +1,5 @@
+import CapitalWeather from "./CapitalWeather.jsx";
+
 const CountryDetail = ({ country }) => {
   if (!country) return null;
 
@@ -15,6 +17,7 @@ const CountryDetail = ({ country }) => {
         })}
       </ul>
       <img src={country.flags.png} alt="" />
+      <CapitalWeather capital={country.capital} />
     </div>
   );
 };
