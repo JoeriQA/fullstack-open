@@ -1,5 +1,5 @@
 import axios from "axios";
-const apiKey = import.meta.env.API_KEY;
+const apiKey = import.meta.env.VITE_API_KEY;
 
 const baseUrl = "http://api.openweathermap.org";
 
@@ -12,7 +12,7 @@ const getGeodata = (capital) => {
 
 const getWeather = (latitude, longitude) => {
   const request = axios.get(
-    `${baseUrl}/data/3.0/onecall?lat=${latitude}&lon=${longitude}&appid=${apiKey}`,
+    `${baseUrl}/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`,
   );
 
   return request.then((response) => response.data);
