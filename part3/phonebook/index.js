@@ -1,7 +1,19 @@
 import express, { response } from "express";
+import morgan from "morgan";
+
 const app = express();
 
+let responseBody;
+
 app.use(express.json());
+
+morgan.token("body", (res) => {
+  return responseBody;
+});
+
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body"),
+);
 
 const generateId = () => {
   const id = Math.floor(Math.random() * 1000000);
@@ -32,6 +44,7 @@ let persons = [
 ];
 
 app.get("/api/persons", (request, response) => {
+  responseBody = JSON.stringify(persons);
   response.json(persons);
 });
 
