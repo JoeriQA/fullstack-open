@@ -1,0 +1,106 @@
+import personService from "./services/persons";
+import { useState } from "react";
+import Notification from "./Notification";
+
+const AddNumberForm = ({
+  persons,
+  setPersons,
+  setSuccessMessage,
+  setErrorMessage,
+}) => {
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+
+  const handleAdd = (event) => {
+    event.preventDefault();
+
+    const personFound = persons.find((person) => person.name === newName);
+
+    if (personFound) {
+      if (
+        confirm(
+          `${newName} is already added to phone book, replace the old number with a new one?`,
+        )
+      ) {
+        const personObject = { name: newName, number: newNumber };
+
+        personService
+          .update(personFound.id, personObject)
+          .then(() => {
+            setSuccessMessage(`Succesfully changed number of ${newName}`);
+
+            setPersons((prevPersons) =>
+              prevPersons.map((p) =>
+                p.id !== personFound.id ? p : personObject,
+              ),
+            );
+            setNewName("");
+            setNewNumber("");
+
+            setTimeout(() => {
+              setSuccessMessage(null);
+            }, 5000);
+          })
+          .catch(() => {
+            setErrorMessage(
+              `Information of ${newName} has already been removed from the server`,
+            );
+            setNewName("");
+            setNewNumber("");
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
+          });
+      }
+    } else {
+      const personObject = {
+        name: newName,
+        number: newNumber,
+      };
+
+      personService.create(personObject).then((response) => {
+        setSuccessMessage(`Added ${newName}`);
+
+        setPersons(persons.concat(response));
+
+        setNewName("");
+        setNewNumber("");
+
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
+      });
+    }
+  };
+
+  return (
+    <div>
+      <h2>add a new</h2>
+      <form>
+        <div>
+          name:{" "}
+          <input
+            value={newName}
+            onChange={(event) => setNewName(event.target.value)}
+          />
+        </div>
+        <div>
+          number:{" "}
+          <input
+            value={newNumber}
+            onChange={(event) => {
+              setNewNumber(event.target.value);
+            }}
+          />
+        </div>
+        <div>
+          <button type="submit" onClick={handleAdd}>
+            add
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default AddNumberForm;
