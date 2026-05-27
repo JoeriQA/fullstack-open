@@ -1,5 +1,7 @@
+import "dotenv/config";
 import express, { response } from "express";
 import morgan from "morgan";
+import Person from "./models/person.js";
 const app = express();
 
 app.use(express.json());
@@ -20,32 +22,11 @@ const generateId = () => {
   return String(id);
 };
 
-let persons = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
 app.get("/api/persons", (request, response) => {
-  responseBody = JSON.stringify(persons);
-  response.json(persons);
+  Person.find({}).then((persons) => {
+    responseBody = JSON.stringify(persons);
+    response.json(persons);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
@@ -98,7 +79,7 @@ app.get("/info", (request, response) => {
   );
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
