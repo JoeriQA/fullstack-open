@@ -41,10 +41,8 @@ const AddNumberForm = ({
               setSuccessMessage(null);
             }, 5000);
           })
-          .catch(() => {
-            setErrorMessage(
-              `Information of ${newName} has already been removed from the server`,
-            );
+          .catch((error) => {
+            setErrorMessage(error.response.data.error);
             setNewName("");
             setNewNumber("");
             setTimeout(() => {
@@ -58,18 +56,27 @@ const AddNumberForm = ({
         number: newNumber,
       };
 
-      personService.create(personObject).then((response) => {
-        setSuccessMessage(`Added ${newName}`);
+      personService
+        .create(personObject)
+        .then((response) => {
+          setSuccessMessage(`Added ${newName}`);
 
-        setPersons(persons.concat(response));
+          setPersons(persons.concat(response));
 
-        setNewName("");
-        setNewNumber("");
+          setNewName("");
+          setNewNumber("");
 
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 5000);
-      });
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 5000);
+        })
+        .catch((error) => {
+          console.log("error creating person");
+          setErrorMessage(error.response.data.error);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+        });
     }
   };
 
