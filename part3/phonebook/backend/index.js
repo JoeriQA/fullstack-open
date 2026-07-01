@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express, { response } from "express";
+import express from "express";
 import morgan from "morgan";
 import Person from "./models/person.js";
 const app = express();
@@ -9,7 +9,7 @@ app.use(express.static("dist"));
 
 let responseBody;
 
-morgan.token("body", (res) => {
+morgan.token("body", () => {
   return responseBody;
 });
 
@@ -88,7 +88,7 @@ app.put("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(() => {
       return response.status(204).end();
@@ -96,14 +96,6 @@ app.delete("/api/persons/:id", (request, response) => {
     .catch((error) => {
       next(error);
     });
-});
-
-app.get("/info", (request, response) => {
-  const date = new Date();
-
-  response.send(
-    `<div>Phonebook has info for ${persons.length} people</div><div>${date.toString()}</div>`,
-  );
 });
 
 const errorHandler = (error, request, response, next) => {
