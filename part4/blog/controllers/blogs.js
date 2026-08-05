@@ -4,22 +4,42 @@ import Blog from "../models/blog.js";
 
 const blogsRouter = express.Router();
 
-blogsRouter.get("/", (request, response) => {
-  Blog.find({})
-    .then((blogs) => {
-      response.json(blogs);
-    })
-    .catch((err) => {
-      logger.error(err);
-    });
+blogsRouter.get("/", async (request, response) => {
+  try {
+    const blogs = await Blog.find({});
+    response.json(blogs);
+  } catch (err) {
+    logger.error(err);
+  }
 });
 
-blogsRouter.post("/", (request, response) => {
-  const blog = new Blog(request.body);
+blogsRouter.post("/", async (request, response) => {
+  if (!request.body.likes) request.body.likes = 0;
 
-  blog.save().then((result) => {
+  if (!request.body.title || !request.body.url)
+    return response.status(400).json({
+      error: "title or url missing",
+    });
+
+  try {
+    const blog = new Blog(request.body);
+    const result = await blog.save();
     response.status(201).json(result);
-  });
+  } catch (err) {
+    logger.error(err);
+    response.status(500);
+  }
+});
+
+blogsRouter.delete("/:id", async (request, response) => {
+  try {
+    const blog = new Blog(request.body);
+    const result = await blog.save();
+    response.status(201).json(result);
+  } catch (err) {
+    logger.error(err);
+    response.status(500);
+  }
 });
 
 export default blogsRouter;
