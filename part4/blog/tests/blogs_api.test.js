@@ -125,7 +125,7 @@ test("a blog without url is not added", async () => {
 });
 
 test("a blog with valid id can be deleted", async () => {
-  const blogs = blogsInDb();
+  const blogs = await blogsInDb();
   const id = blogs[0].id;
 
   await api.delete(`/api/blogs/${id}`).expect(201);
@@ -133,6 +133,30 @@ test("a blog with valid id can be deleted", async () => {
   const response = await api.get("/api/blogs");
 
   assert.strictEqual(response.body.length, initialBlogs.length - 1);
+});
+
+test("a blog with invalid id cannot be deleted", async () => {
+  const id = "12345678";
+
+  await api.delete(`/api/blogs/${id}`).expect(500);
+
+  const response = await api.get("/api/blogs");
+
+  assert.strictEqual(response.body.length, initialBlogs.length);
+});
+
+test("a blog should be updated with the new amount of likes", async () => {
+  const blogs = await blogsInDb();
+  const blog = blogs[0];
+  blog.likes = 20;
+
+  await api.put(`/api/blogs/${blog.id}`).send(blog).expect(201);
+
+  const response = await api.get("/api/blogs");
+
+  assert.strictEqual(response.body.length, initialBlogs.length);
+  const updatedBlog = response.body.find((e) => e.id === blog.id);
+  assert.equal(updatedBlog.likes, 20);
 });
 
 after(async () => {
