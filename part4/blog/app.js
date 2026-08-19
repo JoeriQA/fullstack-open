@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import config from "./utils/config.js";
 import logger from "./utils/logger.js";
 import blogsRouter from "./controllers/blogs.js";
+import usersRouter from "./controllers/users.js";
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use(express.static("dist"));
 app.use(express.json());
 
 app.use("/api/blogs", blogsRouter);
+app.use("/api/users", usersRouter);
 
 export default app;
