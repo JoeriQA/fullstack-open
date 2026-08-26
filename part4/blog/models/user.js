@@ -1,13 +1,18 @@
 import mongoose from "mongoose";
 
 const userSchema = mongoose.Schema({
-  username: { type: String, required: true, unique: true },
+  username: {
+    type: String,
+    required: [true, "username is required"],
+    unique: true,
+    minLength: [3, "username must be at least 3 characters long"],
+  },
   name: String,
   passwordHash: String,
-  notes: [
+  blogs: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Note",
+      ref: "Blog",
     },
   ],
 });

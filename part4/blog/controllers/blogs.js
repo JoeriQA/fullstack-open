@@ -1,33 +1,44 @@
 import logger from "../utils/logger.js";
 import express from "express";
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
 
 const blogsRouter = express.Router();
 
 blogsRouter.get("/", async (request, response) => {
   try {
-    const blogs = await Blog.find({});
-    response.json(blogs);
+    const blogs = await Blog.find({}).populate("user", {
+      username: 1,
+      name: 1,
+    });
+    return response.json(blogs);
   } catch (err) {
     logger.error(err);
   }
 });
 
 blogsRouter.post("/", async (request, response) => {
-  if (!request.body.likes) request.body.likes = 0;
-
-  if (!request.body.title || !request.body.url)
-    return response.status(400).json({
-      error: "title or url missing",
-    });
-
   try {
-    const blog = new Blog(request.body);
-    const result = await blog.save();
-    response.status(201).json(result);
+    if (!request.body.likes) request.body.likes = 0;
+
+    if (!request.body.title || !request.body.url)
+      return response.status(400).json({
+        error: "title or url missing",
+      });
+
+    const users = await User.find({});
+    const user = users[0];
+
+    const blog = new Blog({ ...request.body, user: user._id });
+    const savedBlog = await blog.save();
+
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
+
+    return response.status(201).json(savedBlog);
   } catch (err) {
     logger.error(err);
-    response.status(500).end();
+    return response.status(500).end();
   }
 });
 
@@ -58,10 +69,10 @@ blogsRouter.put("/:id", async (request, response) => {
       },
       { returnDocument: "after", runValidators: true },
     );
-    response.status(201).json(result);
+    return response.status(201).json(result);
   } catch (err) {
     logger.error(err);
-    response.status(500).end();
+    return response.status(500).end();
   }
 });
 

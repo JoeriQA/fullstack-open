@@ -9,7 +9,7 @@ import { usersinDb } from "./test_helper.js";
 
 const api = supertest(app);
 
-describe.only("when there is initially one user in db", () => {
+describe("when there is initially one user in db", () => {
   beforeEach(async () => {
     await User.deleteMany({});
 
@@ -74,6 +74,54 @@ describe.only("when there is initially one user in db", () => {
     const usersAfter = await usersinDb();
 
     assert(response.body.error.includes("expected `username` to be unique"));
+    assert.strictEqual(usersAfter.length, initialUsers.length);
+  });
+
+  test("creation fails with proper statuscode and message if password is shorter than 3 characters", async () => {
+    const initialUsers = await usersinDb();
+
+    const newUser = {
+      username: "bert",
+      name: "Bert Bullet",
+      password: "aa",
+    };
+
+    const response = await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(400)
+      .expect("Content-Type", /application\/json/);
+
+    const usersAfter = await usersinDb();
+
+    assert(
+      response.body.error.includes("password must be at least 3 characters"),
+    );
+    assert.strictEqual(usersAfter.length, initialUsers.length);
+  });
+
+  test("creation fails with proper statuscode and message if username is shorter than 3 characters", async () => {
+    const initialUsers = await usersinDb();
+
+    const newUser = {
+      username: "aa",
+      name: "Arty Johnson",
+      password: "passing",
+    };
+
+    const response = await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(400)
+      .expect("Content-Type", /application\/json/);
+
+    const usersAfter = await usersinDb();
+
+    assert(
+      response.body.error.includes(
+        "username must be at least 3 characters long",
+      ),
+    );
     assert.strictEqual(usersAfter.length, initialUsers.length);
   });
 
