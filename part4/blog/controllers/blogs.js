@@ -1,8 +1,7 @@
 import logger from "../utils/logger.js";
 import express from "express";
 import Blog from "../models/blog.js";
-import User from "../models/user.js";
-import jwt from "jsonwebtoken";
+import { userExtractor } from "../utils/middleware.js";
 
 const blogsRouter = express.Router();
 
@@ -18,12 +17,8 @@ blogsRouter.get("/", async (request, response) => {
   }
 });
 
-blogsRouter.post("/", async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: "token invalid" });
-  }
-  const user = await User.findById(decodedToken.id);
+blogsRouter.post("/", userExtractor, async (request, response) => {
+  const user = request.user;
 
   if (!request.body.likes) request.body.likes = 0;
 
@@ -41,17 +36,12 @@ blogsRouter.post("/", async (request, response) => {
   return response.status(201).json(savedBlog);
 });
 
-blogsRouter.delete("/:id", async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: "token invalid" });
-  }
-
+blogsRouter.delete("/:id", userExtractor, async (request, response) => {
   const blogToDelete = await Blog.findById(request.params.id);
 
   if (!blogToDelete) return response.status(204).end();
 
-  if (blogToDelete.user.toString() !== decodedToken.id.toString())
+  if (blogToDelete.user.toString() !== request.user.id.toString())
     return response
       .status(401)
       .json({ error: "blog can only be deleted by author" });
