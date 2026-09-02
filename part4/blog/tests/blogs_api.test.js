@@ -2,16 +2,35 @@ import { test, after, beforeEach, describe } from "node:test";
 import assert from "node:assert";
 import mongoose from "mongoose";
 import supertest from "supertest";
+import bcrypt from "bcrypt";
 import app from "../app.js";
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
 import { initialBlogs, blogsInDb } from "./test_helper.js";
 
 const api = supertest(app);
 
 describe("when are some initial blogs in the db", () => {
+  let token;
+
   beforeEach(async () => {
     await Blog.deleteMany({});
-    await Blog.insertMany(initialBlogs);
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash("sekret", 10);
+    const user = new User({ username: "root", name: "G Root", passwordHash });
+    await user.save();
+
+    const loginResponse = await api
+      .post("/api/login")
+      .send({ username: "root", password: "sekret" });
+    token = loginResponse.body.token;
+
+    const blogsWithUser = initialBlogs.map((blog) => ({
+      ...blog,
+      user: user._id,
+    }));
+    await Blog.insertMany(blogsWithUser);
   });
 
   test("blogs are returned as json", async () => {
@@ -40,7 +59,7 @@ describe("when are some initial blogs in the db", () => {
     assert(response.body[0].id);
   });
 
-  test.only("a valid blog can be added", async () => {
+  test("a valid blog can be added", async () => {
     const newBlog = {
       title: "The Art of Testing",
       author: "Kent Beck",
@@ -50,6 +69,7 @@ describe("when are some initial blogs in the db", () => {
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -63,6 +83,25 @@ describe("when are some initial blogs in the db", () => {
     assert(titles.includes("The Art of Testing"));
   });
 
+  test("a blog request without a token returns unauthorised", async () => {
+    const newBlog = {
+      title: "The Art of Testing",
+      author: "Kent Beck",
+      url: "https://example.com/art-of-testing",
+      likes: 3,
+    };
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(401)
+      .expect("Content-Type", /application\/json/);
+
+    const response = await api.get("/api/blogs");
+
+    assert.strictEqual(response.body.length, initialBlogs.length);
+  });
+
   test("a blog without likes is added with 0 likes", async () => {
     const newBlog = {
       title: "The Art of Testing",
@@ -72,6 +111,7 @@ describe("when are some initial blogs in the db", () => {
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -95,6 +135,7 @@ describe("when are some initial blogs in the db", () => {
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
       .expect("Content-Type", /application\/json/);
@@ -114,6 +155,7 @@ describe("when are some initial blogs in the db", () => {
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
       .expect("Content-Type", /application\/json/);
@@ -128,7 +170,10 @@ describe("when are some initial blogs in the db", () => {
     const blogs = await blogsInDb();
     const id = blogs[0].id;
 
-    await api.delete(`/api/blogs/${id}`).expect(201);
+    await api
+      .delete(`/api/blogs/${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
 
     const response = await api.get("/api/blogs");
 
@@ -138,7 +183,10 @@ describe("when are some initial blogs in the db", () => {
   test("a blog with invalid id cannot be deleted", async () => {
     const id = "12345678";
 
-    await api.delete(`/api/blogs/${id}`).expect(500);
+    await api
+      .delete(`/api/blogs/${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(400);
 
     const response = await api.get("/api/blogs");
 
