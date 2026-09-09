@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import mongoose from "mongoose";
 import config from "./utils/config.js";
 import logger from "./utils/logger.js";
@@ -25,6 +26,7 @@ mongoose
     logger.error("error connection to MongoDB:", error.message);
   });
 
+app.use(cors());
 app.use(express.static("dist"));
 app.use(express.json());
 
