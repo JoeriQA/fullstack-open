@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import Notification from "./components/Notification";
+import BlogForm from "./components/BlogForm";
+import Togglable from "./components/Toggleable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
@@ -10,9 +12,7 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+  const blogFormRef = useRef();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -59,26 +59,35 @@ const App = () => {
     setUser(null);
   };
 
-  const postBlog = async (event) => {
-    event.preventDefault();
-
+  const postBlog = async (blogObject) => {
     try {
-      const blog = await blogService.create({ title, author, url }, user.token);
+      blogFormRef.current.toggleVisibility();
+      const blog = await blogService.create(blogObject, user.token);
       setBlogs(blogs.concat(blog));
 
       setNotification({
-        message: `a new blog ${title} by ${author} added`,
+        message: `a new blog ${blog.title} by ${blog.author} added`,
         type: "notification",
       });
       setTimeout(() => {
         setNotification(null);
       }, 5000);
-
-      setTitle("");
-      setAuthor("");
-      setUrl("");
     } catch {
       setNotification({ message: "blog creation failed", type: "error" });
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+    }
+  };
+
+  const updateBlog = async (blogObject) => {
+    try {
+      const blog = await blogService.update(blogObject, user.token);
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((p) => (p.id !== blog.id ? p : blogObject)),
+      );
+    } catch {
+      setNotification({ message: "updating blog failed", type: "error" });
       setTimeout(() => {
         setNotification(null);
       }, 5000);
@@ -130,43 +139,12 @@ const App = () => {
           {user.name} logged in
           <button onClick={handleLogout}>logout</button>
         </div>
-        <h2>create new</h2>
-        <form onSubmit={postBlog}>
-          <div>
-            <label>
-              title
-              <input
-                type="text"
-                value={title}
-                onChange={({ target }) => setTitle(target.value)}
-              ></input>
-            </label>
-          </div>
-          <div>
-            <label>
-              author
-              <input
-                type="text"
-                value={author}
-                onChange={({ target }) => setAuthor(target.value)}
-              ></input>
-            </label>
-          </div>
-          <div>
-            <label>
-              url
-              <input
-                type="text"
-                value={url}
-                onChange={({ target }) => setUrl(target.value)}
-              ></input>
-            </label>
-            <button type="submit">create</button>
-          </div>
-        </form>
+        <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+          <BlogForm createBlog={postBlog} />
+        </Togglable>
         <div>
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} updateLikes={updateBlog} />
           ))}
         </div>
       </div>
